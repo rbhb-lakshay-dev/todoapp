@@ -1,68 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { databases } from "../appwrite/appwriteConfig";
+import React from "react";
 
-function Todos() {
-  const [todos, setTodos] = useState();
-  const [loader, setLoader] = useState(false);
-
-  useEffect(() => {
-    setLoader(true);
-    const getTodos = databases.listDocuments(
-      "6738c2fb000c0ee4a82a",
-      "6738c30c0016080e3370"
-    );
-
-    getTodos.then(
-      function (response) {
-        setTodos(response.documents);
-      },
-      function (error) {
-        console.log(error);
-      }
-    );
-    setLoader(false);
-  }, []);
-
-  const deleteTodo = (id) => {
-    const promise = databases.deleteDocument("6738c30c0016080e3370", id);
-    promise.then(
-      function (response) {
-        console.log(response);
-      },
-      function (error) {
-        console.log(error);
-      }
-    );
-    window.location.reload();
-  };
+function Todos({ todos, loader, deleteTodo }) {
+  // If the todos are still loading, show a loading message
+  if (loader) {
+    return <p>Loading ...</p>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto">
       <p className="text-xl font-bold mb-2">Todo List</p>
-      {loader ? (
-        <p>Loading ...</p>
+      {/* If there are no todos, show a message */}
+      {todos.length === 0 ? (
+        <p>No todos available.</p>
       ) : (
         <div>
-          {todos &&
-            todos.map((item) => (
-              <div key={item.$id}>
-                <div className="p-4 flex items-center justify-between border-b-2 bg-gray-100 rounded-lg mb-1">
-                  <div>
-                    <p>{item.todo}</p>
-                  </div>
-                  <div>
-                    <span
-                      className="text-red-400 cursor-pointer"
-                      onClick={() => {
-                        deleteTodo(item.$id);
-                      }}
-                    >
-                      Delete
-                    </span>
-                  </div>
-                </div>
+          {todos.map((item) => (
+            <div
+              key={item.$id}
+              className="p-4 flex items-center justify-between border-b-2 bg-gray-100 rounded-lg mb-1"
+            >
+              <div>
+                <p>{item.todo}</p>
               </div>
-            ))}
+              <div>
+                <span
+                  className="text-red-400 cursor-pointer"
+                  onClick={() => {
+                    deleteTodo(item.$id); // Trigger the delete function passed from the parent
+                  }}
+                >
+                  Delete
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
